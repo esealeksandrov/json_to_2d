@@ -54,11 +54,3 @@ def dict_to_2d_list(arr: (dict, list), path: list = None):
 
 
 
-
-
-if __name__ == "__main__":
-    pass
-
-
-
-
