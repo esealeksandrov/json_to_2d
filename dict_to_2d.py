@@ -2,6 +2,7 @@
     functions for prepare dicts
 """
 
+
 def join_path(root: str, path: str, delimiter: str = "."):
     return delimiter.join(filter(None, (root, path)))
 
@@ -50,7 +51,3 @@ def dict_to_2d_list(arr: (dict, list), path: list = None):
             else:
                 result.append((".".join(path + [key] if path is not None else [key]), value))
     return result
-
-
-
-
