@@ -41,14 +41,14 @@ def dict_to_2d_list(arr: (dict, list), path: list = None):
             if isinstance(value, (dict, list)):
                 result += dict_to_2d_list(value, path + [key] if path is not None else [key])
             else:
-                result.append((".".join(path + [key]), value))
+                result.append((".".join(path + [key] if path is not None else [key]), value))
     else:
         for value in arr:
             key = "#"
             if isinstance(value, (dict, list)):
                 result += dict_to_2d_list(value, path + [key] if path is not None else [key])
             else:
-                result.append((".".join(path + [key]), value))
+                result.append((".".join(path + [key] if path is not None else [key]), value))
     return result
 
 
