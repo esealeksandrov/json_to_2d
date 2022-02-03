@@ -1,15 +1,37 @@
-import json
-from collections import defaultdict
-
-from data import simple_mess, strange_mess
 
 
 def join_path(root: str, path: str, delimiter: str = "."):
     return delimiter.join(filter(None, (root, path)))
 
 
-def dict_to_two_d(arr: (dict, list), root: str = None):
+def add_to_result(key_list: list, value: (str, int, bool, None)):
+    return ".".join(key_list), value
+
+
+def dict_to_2d(arr: (dict, list), root: str = None):
+    if not isinstance(arr, (dict, list)):
+        raise ValueError("Not dict or list")
     result = {}
+    path_prefix = "#" if isinstance(arr, list) else None
+    for item_key in (
+            arr if isinstance(arr, dict)
+            else range(len(arr))
+    ):
+        key = join_path(path_prefix, str(item_key), "")
+        value = arr[item_key]
+        if isinstance(value, (int, str, bool, float)):
+            result[join_path(root, key)] = value
+        elif isinstance(value, (dict, list)):
+            result.update({
+                join_path(root, key): value for key, value in dict_to_2d(value, key).items()
+            })
+    return result
+
+
+def dict_to_2d_mode(arr: (dict, list), root: str = None):
+    result = {}
+    if not isinstance(arr, (dict, list)):
+        raise ValueError("Not dict or list")
     if isinstance(arr, (dict, list)):
         path_prefix = "#" if isinstance(arr, list) else None
         for item_key in (
@@ -22,24 +44,44 @@ def dict_to_two_d(arr: (dict, list), root: str = None):
                 result[join_path(root, key)] = value
             elif isinstance(value, (dict, list)):
                 result.update({
-                    join_path(root, key): value for key, value in dict_to_two_d(value, key).items()
+                    join_path(root, key): value for key, value in dict_to_2d_mode(value, key).items()
                 })
+    return result
+
+
+def dict_to_2d_list(arr: (dict, list), path: list = None):
+    """ Create list[tuple] from dict.
+        tuple[0] - json path,
+        tuple[1]- value
+        arr - dict or list
+        root - list of steps in json path from root
+    """
+    if not isinstance(arr, (dict, list)):
+        raise ValueError(f"first param must be list or dict. Not \"{type(arr)}\"")
+    result = []
+    if isinstance(arr, dict):
+        for key, value in arr.items():
+            if isinstance(value, (dict, list)):
+                result += dict_to_2d_list(value, path + [key] if path is not None else [key])
+            else:
+                result.append((".".join(path + [key]), value))
+    else:
+        for value in arr:
+            key = "#"
+            if isinstance(value, (dict, list)):
+                result += dict_to_2d_list(value, path + [key] if path is not None else [key])
+            else:
+                result.append((".".join(path + [key]), value))
     return result
 
 
 
 
+
+
 if __name__ == "__main__":
-    from datetime import datetime as d
-    from pympler import asizeof
-    from data import test_data
+    pass
 
-    loop = 100000
 
-    s = d.now()
-    for i in range(loop):
-        dict_to_two_d(json.loads(test_data))
-    print(loop, " = ", d.now() - s)
-    #
-    # print("dict: ",asizeof.asizeof(d)/8 ," list(tuple) ", asizeof.asizeof(t)/8)
-    # print(d)
+
+
